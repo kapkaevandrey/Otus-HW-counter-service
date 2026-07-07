@@ -1,0 +1,110 @@
+[project]
+name = "otus-hw-counter-service"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.14"
+dependencies = [
+    "aiokafka>=0.13.0",
+    "fastapi>=0.135.3",
+    "greenlet>=3.3.2",
+    "httpx>=0.28.1",
+    "orjson>=3.11.9",
+    "pydantic-settings>=2.13.1",
+    "pydantic[email]>=2.12.5",
+    "python-json-logger>=4.1.0",
+    "redis>=7.4.0",
+    "uvicorn>=0.44.0",
+    "websockets>=16.0",
+]
+
+[dependency-groups]
+dev = [
+    "faker>=40.13.0",
+    "freezegun>=1.5.5",
+    "mypy>=1.20.0",
+    "pytest>=9.0.2",
+    "pytest-asyncio>=1.3.0",
+    "pytest-cov>=7.1.0",
+    "pytest-flakefinder>=1.1.0",
+    "pytest-order>=1.3.0",
+    "ruff>=0.15.9",
+]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+addopts = "--color=yes -p no:cacheprovider"
+console_output_style = "progress"
+asyncio_mode = "auto"
+testpaths = ["./tests/"]
+python_files = ["test_*.py", "tests.py", "*_test.py"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py314"
+fix = true
+unsafe-fixes = true
+exclude = [
+    ".git", ".hg", ".mypy_cache", ".tox", ".venv", "venv",
+    "_build", "buck-out", "build", "dist", "proto", "migrations", "metrics.py"
+]
+
+[tool.ruff.lint]
+select = [
+    "E", # pycodestyle
+    "F", # pyflakes
+    "I", # isort (сортировка импортов)
+    "N", # pep8-naming
+    "UP", # pyupgrade
+    "B", # bugbear
+    "C4", # comprehensions
+    "SIM", # simplify
+    "TID", # tidy imports
+]
+ignore = [
+    "D100", "D101", "D102", "D103"
+]
+
+[tool.ruff.lint.per-file-ignores]
+"app/apps/api/**/*.py" = ["B008"] # Для игнорирования тайпинга context: Context = Depends(get_context)
+"app/apps/ws/**/*.py" = ["B008"] # Для игнорирования тайпинга context: Context = Depends(get_context)
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+known-third-party = []
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+lines-after-imports = 2
+
+[tool.mypy]
+python_version = "3.13"
+ignore_missing_imports = true
+follow_imports = "silent"
+pretty = true
+exclude = "(venv|tests|migrations*)/$"
+
+disallow_incomplete_defs = true
+no_implicit_optional = true
+strict_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+plugins = ["pydantic.mypy"]
+
+[tool.pydantic-mypy]
+warn_required_dynamic_aliases = true
+warn_untyped_fields = true
+init_typed = true
+
+[tool.setuptools]
+packages = ["app"]
