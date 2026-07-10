@@ -1,8 +1,16 @@
 from functools import cached_property
+from uuid import UUID
 
 from app.core.enums import DialogEventType
 from app.core.services.base import BaseService, async_use_case
-from app.schemas.services import BaseServiceResponse, DialogCounterEvent, DialogReadEventSchema, MessageSentEventSchema
+from app.schemas.services import (
+    BaseServiceResponse,
+    DialogCounterEvent,
+    DialogReadEventSchema,
+    MessageSentEventSchema,
+    UnreadCountersResult,
+    UnreadPeerCounter,
+)
 
 from .utils import DialogUtils
 
@@ -19,6 +27,14 @@ class DialogCounterService(BaseService):
         elif schema.type == DialogEventType.DIALOG_READ:
             await self._handle_dialog_read(schema)
         return BaseServiceResponse[None]()
+
+    @async_use_case()
+    async def get_unread_counters(self, user_id: UUID) -> BaseServiceResponse[UnreadCountersResult]:
+        counters = await self.utils.get_unread_counters(user_id, self.context.redis_client)
+        by_peer = [UnreadPeerCounter(peer_id=peer_id, count=count) for peer_id, count in counters.items() if count > 0]
+        total = sum(item.count for item in by_peer)
+        result = UnreadCountersResult(user_id=user_id, total=total, by_peer=by_peer)
+        return BaseServiceResponse[UnreadCountersResult](result=result)
 
     async def _handle_message_sent(self, schema: MessageSentEventSchema) -> None:
         unread_count = await self.utils.increment_unread_on_message_sent(schema, self.context.redis_client)

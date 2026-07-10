@@ -1,4 +1,5 @@
 from .base import BaseServiceResponse
+from .counters import UnreadCountersResult, UnreadPeerCounter
 from .dialog import DialogCounterEvent, DialogReadEventSchema, MessageSentEventSchema
 
 
@@ -7,4 +8,6 @@ __all__ = [
     "DialogCounterEvent",
     "DialogReadEventSchema",
     "MessageSentEventSchema",
+    "UnreadCountersResult",
+    "UnreadPeerCounter",
 ]

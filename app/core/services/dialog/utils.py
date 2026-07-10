@@ -40,3 +40,15 @@ class DialogUtils(ServiceUtils):
             peer_id=str(event.peer_id),
             processed_ttl_sec=self.PROCESSED_EVENT_TTL_SEC,
         )
+
+    async def get_unread_counters(
+        self,
+        user_id: UUID,
+        redis_client: RedisClient,
+    ) -> dict[UUID, int]:
+        raw = await redis_client.hgetall(self.unread_key(user_id))
+        counters: dict[UUID, int] = {}
+        for field, value in raw.items():
+            peer = field.decode() if isinstance(field, bytes) else field
+            counters[UUID(peer)] = int(value)
+        return counters
