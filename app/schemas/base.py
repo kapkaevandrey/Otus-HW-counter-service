@@ -1,0 +1,14 @@
+from typing import TypeVar
+
+from pydantic import BaseModel, ConfigDict
+
+
+DataT = TypeVar("DataT")
+
+
+class EmptyBaseSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True, use_enum_values=True, arbitrary_types_allowed=True)
+
+    @property
+    def is_empty(self):
+        return bool(self.model_dump(exclude_unset=True))

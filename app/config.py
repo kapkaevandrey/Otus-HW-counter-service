@@ -4,6 +4,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 BASE_DIR = Path(__file__).resolve().parent
+SCRIPTS_PATH = BASE_DIR / "scripts"
+REDIS_SCRIPTS_PATH = SCRIPTS_PATH / "redis"
 
 
 class EmptyBaseSettings(BaseSettings):
@@ -37,6 +39,9 @@ class RedisSettings(EmptyBaseSettings):
     REDIS_HEALTH_CHECK_INTERVAL: int = 30
     REDIS_RETRY_ON_TIMEOUT: bool = True
     REDIS_DEFAULT_SETTINGS_TTL: int = 24 * 60 * 60
+    REDIS_UNREAD_KEY_PREFIX: str = "unread"
+    REDIS_PROCESSED_EVENT_KEY_PREFIX: str = "processed"
+    REDIS_PROCESSED_EVENT_TTL_SEC: int = 24 * 60 * 60
 
 
 class KafkaSettings(EmptyBaseSettings):

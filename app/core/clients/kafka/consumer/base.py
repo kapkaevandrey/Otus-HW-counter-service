@@ -1,4 +1,5 @@
 import logging
+from abc import ABC, abstractmethod
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import Any
@@ -9,7 +10,7 @@ from pydantic import PositiveInt
 from .exceptions import ImproperlyConfiguredError, RetriesExceededError
 
 
-class BaseKafkaConsumer:
+class BaseKafkaConsumer(ABC):
     def __init__(
         self,
         consumer_class: type[AIOKafkaConsumer],
@@ -109,6 +110,7 @@ class BaseKafkaConsumer:
                 if once:
                     break
 
+    @abstractmethod
     async def process_message(self, message: ConsumerRecord, context: Any = None) -> None:
         """Processes an incoming message from kafka. Must be overriden to
         consumer work properly.
