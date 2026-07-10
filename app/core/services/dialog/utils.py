@@ -3,7 +3,7 @@ from uuid import UUID
 from app.config import redis_settings
 from app.core.clients import RedisClient
 from app.core.services.utils import ServiceUtils
-from app.schemas.services import MessageSentEventSchema
+from app.schemas.services import DialogReadEventSchema, MessageSentEventSchema
 
 
 class DialogUtils(ServiceUtils):
@@ -26,5 +26,17 @@ class DialogUtils(ServiceUtils):
             processed_event_key=self.processed_event_key(event.event_id),
             unread_key=self.unread_key(event.recipient_id),
             sender_id=str(event.sender_id),
+            processed_ttl_sec=self.PROCESSED_EVENT_TTL_SEC,
+        )
+
+    async def reset_unread_on_dialog_read(
+        self,
+        event: DialogReadEventSchema,
+        redis_client: RedisClient,
+    ) -> int | None:
+        return await redis_client.reset_unread_on_dialog_read(
+            processed_event_key=self.processed_event_key(event.event_id),
+            unread_key=self.unread_key(event.user_id),
+            peer_id=str(event.peer_id),
             processed_ttl_sec=self.PROCESSED_EVENT_TTL_SEC,
         )

@@ -17,6 +17,9 @@ class RedisClient(Redis):
             "increment_unread_on_message_sent": (REDIS_SCRIPTS_PATH / "increment_unread_on_message_sent.lua").read_text(
                 encoding="utf-8"
             ),
+            "reset_unread_on_dialog_read": (REDIS_SCRIPTS_PATH / "reset_unread_on_dialog_read.lua").read_text(
+                encoding="utf-8"
+            ),
         }
 
     @classmethod
@@ -47,6 +50,20 @@ class RedisClient(Redis):
             name="increment_unread_on_message_sent",
             keys=[processed_event_key, unread_key],
             args=[sender_id, str(processed_ttl_sec)],
+        )
+
+    async def reset_unread_on_dialog_read(
+        self,
+        *,
+        processed_event_key: str,
+        unread_key: str,
+        peer_id: str,
+        processed_ttl_sec: int,
+    ) -> int | None:
+        return await self._eval_counter_script(
+            name="reset_unread_on_dialog_read",
+            keys=[processed_event_key, unread_key],
+            args=[peer_id, str(processed_ttl_sec)],
         )
 
     async def _eval_counter_script(self, *, name: str, keys: list[str], args: list[str]) -> int | None:
